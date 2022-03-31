@@ -113,3 +113,9 @@ require (
 )
 
 go 1.16
+
+replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
+
+replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
+
+replace github.com/libp2p/go-bitswap => ../go-bitswap/
