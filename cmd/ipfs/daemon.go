@@ -41,6 +41,8 @@ import (
 	manet "github.com/multiformats/go-multiaddr/net"
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
+
+	"git.d464.sh/adc/telemetry/pkg/telemetry"
 )
 
 const (
@@ -461,6 +463,13 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		return err
 	}
 	node.Process.AddChild(goprocess.WithTeardown(cctx.Plugins.Close))
+
+	fmt.Println("Starting telemetry service")
+	service, err := telemetry.NewTelemetryService(node)
+	if err != nil {
+		return err
+	}
+	defer service.Close()
 
 	// construct api endpoint - every time
 	apiErrc, err := serveHTTPApi(req, cctx)

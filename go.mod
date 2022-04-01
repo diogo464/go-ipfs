@@ -3,6 +3,7 @@ module github.com/ipfs/go-ipfs
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
 	contrib.go.opencensus.io/exporter/prometheus v0.4.0
+	git.d464.sh/adc/telemetry v0.0.0-00010101000000-000000000000
 	github.com/blang/semver/v4 v4.0.0
 	github.com/ceramicnetwork/go-dag-jose v0.1.0
 	github.com/cheggaaa/pb v1.0.29
@@ -119,3 +120,5 @@ replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
 replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
 
 replace github.com/libp2p/go-bitswap => ../go-bitswap/
+
+replace git.d464.sh/adc/telemetry => ../../
