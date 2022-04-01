@@ -119,6 +119,6 @@ replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
 
 replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
 
-replace github.com/libp2p/go-bitswap => ../go-bitswap/
+replace github.com/ipfs/go-bitswap => ../go-bitswap/
 
 replace git.d464.sh/adc/telemetry => ../../
