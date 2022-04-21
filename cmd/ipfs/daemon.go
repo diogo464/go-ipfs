@@ -465,7 +465,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	node.Process.AddChild(goprocess.WithTeardown(cctx.Plugins.Close))
 
 	fmt.Println("Starting telemetry service")
-	service, err := telemetry.NewTelemetryService(node)
+	service, err := telemetry.NewTelemetryService(node, cfg.Telemetry)
 	if err != nil {
 		return err
 	}

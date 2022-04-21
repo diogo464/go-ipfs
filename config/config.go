@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	telemetry "git.d464.sh/adc/telemetry/pkg/telemetry/config"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -38,6 +39,8 @@ type Config struct {
 	Pinning      Pinning
 
 	Internal Internal // experimental/unstable options
+
+	Telemetry telemetry.Config
 }
 
 const (
