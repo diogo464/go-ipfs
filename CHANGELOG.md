@@ -1,5 +1,71 @@
 # go-ipfs changelog
 
+## v0.13 (DRAFT)
+
+### BREAKING CHANGES
+
+- `ipfs block put` command produces CIDv1 with `raw` codec by default now
+    - `ipfs block put --cid-codec` makes `block put` return CID with alternative codec
+       - this impacts only the returned CID, it does  not trigger any validation or data transformation
+       - codec names are validated against tables from https://github.com/multiformats/go-multicodec
+    - `ipfs block put --format` is deprecated. It used incorrect codec names and should be avoided for new deployments. Use it only if you need the old, invalid behavior, namely:
+      - `ipfs block put --format=v0` will produce CIDv0 (implicit dag-pb)
+      - `ipfs block put --format=cbor` will produce CIDv1 with dag-cbor (!)
+      - `ipfs block put --format=protobuf` will produce CIDv1 with dag-pb (!)
+- `ipfs cid codecs` command
+  - it now lists codecs from https://github.com/multiformats/go-multicodec
+  - `ipfs cid codecs --supported` can be passed to only show codecs supported in various go-ipfs commands
+- `Swarm` configuration
+  - Daemon will refuse to start if long-deprecated RelayV1 config key `Swarm.EnableAutoRelay` or `Swarm.DisableRelay` is set to `true`
+  - When `Swarm.Transports.Network.Relay` is disabled,  `Swarm.RelayService` and `Swarm.RelayClient` are also disabled (unless user explicitly enabled them).
+    -  If user enabled them manually, then we error on start and inform they require  `Swarm.Transports.Network.Relay`
+
+## v0.12.2 and v0.11.1 2022-04-08
+
+This patch release fixes a security issue wherein traversing some malformed DAGs can cause the node to panic.
+
+See also the security advisory: https://github.com/ipfs/go-ipfs/security/advisories/GHSA-mcq2-w56r-5w2w
+
+Note: the v0.11.1 patch release contains the Docker compose fix from v0.12.1 as well
+
+### Changelog
+
+<details>
+<summary>Full Changelog</summary>
+- github.com/ipld/go-codec-dagpb (v1.3.0 -> v1.3.2):
+  - fix: use protowire for Links bytes decoding
+</details>
+
+### ❤ Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| Rod Vagg | 1 | +34/-19 | 2 |
+
+## v0.12.1 2022-03-17
+
+This patch release [fixes](https://github.com/ipfs/go-ipfs/commit/816a128aaf963d72c4930852ce32b9a4e31924a1) a security issue with the `docker-compose.yaml` file in which the IPFS daemon API listens on all interfaces instead of only the loopback interface, which could allow remote callers to control your IPFS daemon. If you use the included `docker-compose.yaml` file, it is recommended to upgrade.
+
+See also the security advisory: https://github.com/ipfs/go-ipfs/security/advisories/GHSA-fx5p-f64h-93xc
+
+Thanks to @LynHyper for finding and disclosing this.
+
+### Changelog
+
+<details>
+<summary>Full Changelog</summary>
+
+- github.com/ipfs/go-ipfs:
+  -  fix: listen on loopback for API and gateway ports in docker-compose.yaml
+
+</details>
+
+### ❤ Contributors
+
+| Contributor | Commits | Lines ± | Files Changed |
+|-------------|---------|---------|---------------|
+| guseggert | 1 | +10/-3 | 1 |
+
 ## v0.12.0 2022-02-17
 
 We're happy to announce go-ipfs 0.12.0. This release switches the storage of IPLD blocks to be keyed by multihash instead of CID.
