@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	telemetry_config "github.com/diogo464/telemetry/pkg/telemetry/config"
 )
 
 // Transformer is a function which takes configuration and applies some filter to it
@@ -43,6 +45,8 @@ var defaultServerFilters = []string{
 	"/ip6/fe80::/ipcidr/10",
 }
 
+var defaultTelemetryConfig = telemetry_config.Default()
+
 // Profiles is a map holding configuration transformers. Docs are in docs/config.md
 var Profiles = map[string]Profile{
 	"server": {
@@ -54,6 +58,7 @@ running IPFS on machines with public IPv4 addresses.`,
 			c.Swarm.AddrFilters = appendSingle(c.Swarm.AddrFilters, defaultServerFilters)
 			c.Discovery.MDNS.Enabled = false
 			c.Swarm.DisableNatPortMap = true
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -67,6 +72,7 @@ profile, enables discovery in local networks.`,
 			c.Swarm.AddrFilters = deleteEntries(c.Swarm.AddrFilters, defaultServerFilters)
 			c.Discovery.MDNS.Enabled = true
 			c.Swarm.DisableNatPortMap = false
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -85,6 +91,7 @@ is useful when using the daemon in test environments.`,
 
 			c.Bootstrap = []string{}
 			c.Discovery.MDNS.Enabled = false
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -103,6 +110,7 @@ Inverse profile of the test profile.`,
 
 			c.Swarm.DisableNatPortMap = false
 			c.Discovery.MDNS.Enabled = true
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -117,6 +125,7 @@ This profile may only be applied when first initializing the node.
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = flatfsSpec()
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -140,6 +149,7 @@ This profile may only be applied when first initializing the node.
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = flatfsSpec()
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -165,6 +175,7 @@ This profile may only be applied when first initializing the node.`,
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = badgerSpec()
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
@@ -196,6 +207,7 @@ fetching may be degraded.
 				fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port),
 				fmt.Sprintf("/ip6/::/tcp/%d", port),
 			}
+			c.Telemetry = defaultTelemetryConfig
 			return nil
 		},
 	},
