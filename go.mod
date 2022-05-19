@@ -125,6 +125,8 @@ require (
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 )
 
+replace github.com/libp2p/go-libp2p => ../go-libp2p/
+
 replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht/
 
 replace github.com/libp2p/go-libp2p-kbucket => ../go-libp2p-kbucket/
