@@ -465,12 +465,14 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	}
 	node.Process.AddChild(goprocess.WithTeardown(cctx.Plugins.Close))
 
-	fmt.Println("Starting telemetry service")
-	service, err := telemetry.NewTelemetryService(node, cfg.Telemetry)
-	if err != nil {
-		return err
+	if !cfg.Telemetry.Disabled {
+		fmt.Println("Starting telemetry service")
+		service, err := telemetry.NewTelemetryService(node, cfg.Telemetry)
+		if err != nil {
+			return err
+		}
+		defer service.Close()
 	}
-	defer service.Close()
 
 	// construct api endpoint - every time
 	apiErrc, err := serveHTTPApi(req, cctx)
