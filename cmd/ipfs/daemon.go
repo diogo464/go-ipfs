@@ -42,6 +42,8 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
+	"github.com/diogo464/telemetry/pkg/collectors"
+	"github.com/diogo464/telemetry/pkg/datapoint"
 	"github.com/diogo464/telemetry/pkg/telemetry"
 )
 
@@ -465,13 +467,12 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	}
 	node.Process.AddChild(goprocess.WithTeardown(cctx.Plugins.Close))
 
-	if !cfg.Telemetry.Disabled {
-		fmt.Println("Starting telemetry service")
-		service, err := telemetry.NewTelemetryService(node, cfg.Telemetry)
+	if cfg.Telemetry.Enabled {
+		telemetryService, err := setupTelemetry(node, cfg.Telemetry)
 		if err != nil {
 			return err
 		}
-		defer service.Close()
+		defer telemetryService.Close()
 	}
 
 	// construct api endpoint - every time
@@ -941,4 +942,104 @@ func printVersion() {
 	fmt.Printf("Repo version: %d\n", fsrepo.RepoVersion)
 	fmt.Printf("System version: %s\n", runtime.GOARCH+"/"+runtime.GOOS)
 	fmt.Printf("Golang version: %s\n", runtime.Version())
+}
+
+func setupTelemetry(node *core.IpfsNode, cfg config.Telemetry) (*telemetry.Service, error) {
+	windowOpts := cfg.Stream
+	if windowOpts == nil {
+		windowOpts = config.TelemetryDefault.Stream
+	}
+
+	fmt.Println("Starting telemetry service")
+	fmt.Println("WindowOpts = ", windowOpts)
+	service, err := telemetry.NewService(node, telemetry.WithServiceDefaultStreamOpts(
+		telemetry.WithStreamSegmentLifetime(windowOpts.Duration),
+		telemetry.WithStreamActiveBufferLifetime(windowOpts.UpdateInterval),
+	), telemetry.WithServiceDebug(cfg.Debug))
+	if err != nil {
+		return nil, err
+	}
+
+	optsFor := func(s *telemetry.Service, name string, f func(string, telemetry.CollectorOpts) telemetry.Collector) {
+		var opts *config.TelemetryCollector = nil
+		if o, ok := cfg.Collectors[name]; ok {
+			fmt.Println("CollectorConfig[", name, "] = ", o.Enabled)
+			opts = o
+		}
+		if o, ok := config.TelemetryDefault.Collectors[name]; ok {
+			fmt.Println("CollectorConfig[", name, "] = default")
+			opts = o
+		}
+		if opts == nil {
+			fmt.Println("CollectorConfig[", name, "] = not found")
+			return
+		}
+
+		if opts.Enabled {
+			copts := telemetry.CollectorOpts{
+				Interval: opts.Interval,
+			}
+			col := f(name, copts)
+			if err := s.RegisterCollector(name, col, copts); err == nil {
+				fmt.Println("Collector[", name, "] = OK")
+			} else {
+				fmt.Println("Collector[", name, "] = ", err)
+			}
+		}
+	}
+
+	optsFor(service, datapoint.BitswapName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Bitswap(node)
+	})
+
+	optsFor(service, datapoint.ConnectionsName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Connections(node.PeerHost)
+	})
+
+	optsFor(service, datapoint.KademliaName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Kademlia()
+	})
+
+	optsFor(service, datapoint.KademliaHandlerName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.KademliaHandler()
+	})
+
+	optsFor(service, datapoint.KademliaQueryName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.KademliaQuery()
+	})
+
+	optsFor(service, datapoint.NetworkName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Network(node, collectors.NetworkOptions{
+			BandwidthByPeerInterval: time.Minute * 2,
+		})
+	})
+
+	optsFor(service, datapoint.PingName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Ping(node.PeerHost, collectors.PingOptions{
+			PingCount: 5,
+			Timeout:   time.Second * 20,
+		})
+	})
+
+	optsFor(service, datapoint.ResourceName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		resources, err := collectors.Resources()
+		if err != nil {
+			panic(err)
+		}
+		return resources
+	})
+
+	optsFor(service, datapoint.RoutingTableName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.RoutingTable(node)
+	})
+
+	optsFor(service, datapoint.StorageName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.Storage(node)
+	})
+
+	optsFor(service, datapoint.TraceRouteName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+		return collectors.TraceRoute(node.PeerHost)
+	})
+
+	return service, nil
 }

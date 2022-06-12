@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	telemetry "github.com/diogo464/telemetry/pkg/telemetry/config"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -40,7 +39,7 @@ type Config struct {
 
 	Internal Internal // experimental/unstable options
 
-	Telemetry telemetry.Config
+	Telemetry Telemetry
 }
 
 const (
