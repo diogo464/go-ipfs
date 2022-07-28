@@ -42,7 +42,6 @@ import (
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/diogo464/ipfs_telemetry/pkg/collectors"
-	"github.com/diogo464/ipfs_telemetry/pkg/datapoint"
 	"github.com/diogo464/telemetry"
 )
 
@@ -947,9 +946,9 @@ func setupTelemetry(node *core.IpfsNode, cfg config.Telemetry) (*telemetry.Servi
 		windowOpts = config.TelemetryDefault.Stream
 	}
 
-	fmt.Println("Starting telemetry service")
-	fmt.Println("WindowOpts = ", windowOpts)
-	service, err := telemetry.NewService(node, telemetry.WithServiceDefaultStreamOpts(
+	log.Info("Starting telemetry service")
+	log.Debug("WindowOpts = ", windowOpts)
+	service, err := telemetry.NewService(node.PeerHost, telemetry.WithServiceDefaultStreamOpts(
 		telemetry.WithStreamSegmentLifetime(windowOpts.Duration),
 		telemetry.WithStreamActiveBufferLifetime(windowOpts.UpdateInterval),
 	), telemetry.WithServiceDebug(cfg.Debug))
@@ -957,86 +956,41 @@ func setupTelemetry(node *core.IpfsNode, cfg config.Telemetry) (*telemetry.Servi
 		return nil, err
 	}
 
-	optsFor := func(s *telemetry.Service, name string, f func(string, telemetry.CollectorOpts) telemetry.Collector) {
-		var opts *config.TelemetryCollector = nil
-		if o, ok := cfg.Collectors[name]; ok {
-			fmt.Println("CollectorConfig[", name, "] = ", o.Enabled)
-			opts = o
-		}
-		if o, ok := config.TelemetryDefault.Collectors[name]; ok {
-			fmt.Println("CollectorConfig[", name, "] = default")
-			opts = o
-		}
-		if opts == nil {
-			fmt.Println("CollectorConfig[", name, "] = not found")
-			return
-		}
-
-		if opts.Enabled {
-			copts := telemetry.CollectorOpts{
-				Interval: opts.Interval,
+	registerCollector := func(name string, factory func() (telemetry.Collector, error)) {
+		if ccfg := cfg.Collectors[name]; ccfg != nil && ccfg.Enabled {
+			opts := make([]telemetry.CollectorOption, 0)
+			if ccfg.Interval != 0 {
+				opts = append(opts, telemetry.WithCollectorOverridePeriod(ccfg.Interval))
 			}
-			col := f(name, copts)
-			if err := s.RegisterCollector(name, col, copts); err == nil {
-				fmt.Println("Collector[", name, "] = OK")
+			if c, err := factory(); err == nil {
+				log.Info("Registering telemetry collector: ", name)
+				service.RegisterCollector(c, opts...)
 			} else {
-				fmt.Println("Collector[", name, "] = ", err)
+				log.Warnf("Failed to register collector %s: %s", name, err)
 			}
 		}
 	}
 
-	optsFor(service, datapoint.BitswapName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.Bitswap(node)
-	})
-
-	optsFor(service, datapoint.ConnectionsName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.Connections(node.PeerHost)
-	})
-
-	optsFor(service, datapoint.KademliaName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.Kademlia()
-	})
-
-	optsFor(service, datapoint.KademliaHandlerName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.KademliaHandler()
-	})
-
-	optsFor(service, datapoint.KademliaQueryName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.KademliaQuery()
-	})
-
-	optsFor(service, datapoint.NetworkName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+	registerCollector("bitswap", func() (telemetry.Collector, error) { return collectors.Bitswap(node), nil })
+	registerCollector("connections", func() (telemetry.Collector, error) { return collectors.Connections(node.PeerHost), nil })
+	registerCollector("kademlia", func() (telemetry.Collector, error) { return collectors.Kademlia(), nil })
+	registerCollector("kademliaquery", func() (telemetry.Collector, error) { return collectors.KademliaQuery(), nil })
+	registerCollector("kademliahandler", func() (telemetry.Collector, error) { return collectors.KademliaHandler(), nil })
+	registerCollector("network", func() (telemetry.Collector, error) {
 		return collectors.Network(node, collectors.NetworkOptions{
 			BandwidthByPeerInterval: time.Minute * 2,
-		})
+		}), nil
 	})
-
-	optsFor(service, datapoint.PingName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
+	registerCollector("ping", func() (telemetry.Collector, error) {
 		return collectors.Ping(node.PeerHost, collectors.PingOptions{
 			PingCount: 5,
 			Timeout:   time.Second * 20,
-		})
+		}), nil
 	})
-
-	optsFor(service, datapoint.ResourceName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		resources, err := collectors.Resources()
-		if err != nil {
-			panic(err)
-		}
-		return resources
-	})
-
-	optsFor(service, datapoint.RoutingTableName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.RoutingTable(node)
-	})
-
-	optsFor(service, datapoint.StorageName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.Storage(node)
-	})
-
-	optsFor(service, datapoint.TraceRouteName, func(s string, co telemetry.CollectorOpts) telemetry.Collector {
-		return collectors.TraceRoute(node.PeerHost)
-	})
+	registerCollector("resources", func() (telemetry.Collector, error) { return collectors.Resources() })
+	registerCollector("routingtable", func() (telemetry.Collector, error) { return collectors.RoutingTable(node), nil })
+	registerCollector("storage", func() (telemetry.Collector, error) { return collectors.Storage(node), nil })
+	registerCollector("traceroute", func() (telemetry.Collector, error) { return collectors.TraceRoute(node.PeerHost), nil })
 
 	return service, nil
 }
