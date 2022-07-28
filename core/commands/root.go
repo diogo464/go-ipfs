@@ -3,12 +3,12 @@ package commands
 import (
 	"errors"
 
-	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	dag "github.com/ipfs/go-ipfs/core/commands/dag"
-	name "github.com/ipfs/go-ipfs/core/commands/name"
-	ocmd "github.com/ipfs/go-ipfs/core/commands/object"
-	"github.com/ipfs/go-ipfs/core/commands/pin"
-	unixfs "github.com/ipfs/go-ipfs/core/commands/unixfs"
+	cmdenv "github.com/ipfs/kubo/core/commands/cmdenv"
+	dag "github.com/ipfs/kubo/core/commands/dag"
+	name "github.com/ipfs/kubo/core/commands/name"
+	ocmd "github.com/ipfs/kubo/core/commands/object"
+	"github.com/ipfs/kubo/core/commands/pin"
+	unixfs "github.com/ipfs/kubo/core/commands/unixfs"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
 	logging "github.com/ipfs/go-log"
@@ -52,7 +52,6 @@ TEXT ENCODING COMMANDS
 
 ADVANCED COMMANDS
   daemon        Start a long-running daemon process
-  mount         Mount an IPFS read-only mount point
   resolve       Resolve any type of content path
   name          Publish and resolve IPNS names
   key           Create and list IPNS name keypairs
@@ -61,12 +60,14 @@ ADVANCED COMMANDS
   stats         Various operational stats
   p2p           Libp2p stream mounting (experimental)
   filestore     Manage the filestore (experimental)
+  mount         Mount an IPFS read-only mount point (experimental)
 
 NETWORK COMMANDS
   id            Show info about IPFS peers
   bootstrap     Add or remove bootstrap peers
   swarm         Manage connections to the p2p network
   dht           Query the DHT for values or peers
+  routing       Issue routing commands
   ping          Measure the latency of a connection
   bitswap       Inspect bitswap state
   pubsub        Send and receive messages via pubsub
@@ -135,6 +136,7 @@ var rootSubcommands = map[string]*cmds.Command{
 	"config":    ConfigCmd,
 	"dag":       dag.DagCmd,
 	"dht":       DhtCmd,
+	"routing":   RoutingCmd,
 	"diag":      DiagCmd,
 	"dns":       DNSCmd,
 	"id":        IDCmd,
