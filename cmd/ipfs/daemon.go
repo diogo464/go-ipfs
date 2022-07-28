@@ -42,9 +42,9 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
-	"github.com/diogo464/telemetry/pkg/collectors"
-	"github.com/diogo464/telemetry/pkg/datapoint"
-	"github.com/diogo464/telemetry/pkg/telemetry"
+	"github.com/diogo464/ipfs_telemetry/pkg/collectors"
+	"github.com/diogo464/ipfs_telemetry/pkg/datapoint"
+	"github.com/diogo464/telemetry"
 )
 
 const (
