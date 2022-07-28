@@ -129,7 +129,7 @@ replace github.com/diogo464/ipfs_telemetry => ../../
 
 require (
 	github.com/diogo464/ipfs_telemetry v0.0.0-00010101000000-000000000000
-	github.com/diogo464/telemetry v0.0.0-20220728142438-c455c741e0ad
+	github.com/diogo464/telemetry v0.0.0-20220728212629-2df95c3e8f59
 )
 
 require (
@@ -237,7 +237,6 @@ require (
 	github.com/raulk/go-watchdog v1.2.0 // indirect
 	github.com/rs/cors v1.7.0 // indirect
 	github.com/shirou/gopsutil v2.21.11+incompatible // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e // indirect

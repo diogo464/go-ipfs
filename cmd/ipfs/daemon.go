@@ -992,5 +992,12 @@ func setupTelemetry(node *core.IpfsNode, cfg config.Telemetry) (*telemetry.Servi
 	registerCollector("storage", func() (telemetry.Collector, error) { return collectors.Storage(node), nil })
 	registerCollector("traceroute", func() (telemetry.Collector, error) { return collectors.TraceRoute(node.PeerHost), nil })
 
+	if providerRecordsProperty, ok := cfg.Properties["provider_records"]; ok && providerRecordsProperty.Enabled {
+		log.Info("Registering provider records property")
+		if err := service.RegisterProperty(collectors.ProviderRecordsProperty(node)); err != nil {
+			return nil, err
+		}
+	}
+
 	return service, nil
 }

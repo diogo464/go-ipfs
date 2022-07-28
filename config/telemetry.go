@@ -9,6 +9,10 @@ type TelemetryCollector struct {
 	Interval time.Duration
 }
 
+type TelemetryProperty struct {
+	Enabled bool
+}
+
 type TelemetryStream struct {
 	Duration       time.Duration
 	UpdateInterval time.Duration
@@ -19,6 +23,7 @@ type Telemetry struct {
 	Debug      bool
 	Stream     *TelemetryStream
 	Collectors map[string]*TelemetryCollector
+	Properties map[string]*TelemetryProperty
 }
 
 var TelemetryDefault = Telemetry{
@@ -72,6 +77,11 @@ var TelemetryDefault = Telemetry{
 		"traceroute": {
 			Enabled:  true,
 			Interval: time.Second * 5,
+		},
+	},
+	Properties: map[string]*TelemetryProperty{
+		"provider_records": {
+			Enabled: true,
 		},
 	},
 }
