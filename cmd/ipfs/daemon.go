@@ -951,7 +951,7 @@ func setupTelemetry(node *core.IpfsNode, cfg config.Telemetry) (*telemetry.Servi
 	service, err := telemetry.NewService(node.PeerHost, telemetry.WithServiceDefaultStreamOpts(
 		telemetry.WithStreamSegmentLifetime(windowOpts.Duration),
 		telemetry.WithStreamActiveBufferLifetime(windowOpts.UpdateInterval),
-	), telemetry.WithServiceDebug(cfg.Debug))
+	), telemetry.WithServiceDebug(cfg.Debug), telemetry.WithServiceBandwidth(cfg.Bandwidth))
 	if err != nil {
 		return nil, err
 	}

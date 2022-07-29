@@ -20,6 +20,7 @@ type TelemetryStream struct {
 
 type Telemetry struct {
 	Enabled    bool
+	Bandwidth  bool
 	Debug      bool
 	Stream     *TelemetryStream
 	Collectors map[string]*TelemetryCollector
@@ -27,8 +28,9 @@ type Telemetry struct {
 }
 
 var TelemetryDefault = Telemetry{
-	Enabled: true,
-	Debug:   false,
+	Enabled:   true,
+	Bandwidth: true,
+	Debug:     false,
 	Stream: &TelemetryStream{
 		Duration:       time.Minute * 30,
 		UpdateInterval: time.Minute * 5,
