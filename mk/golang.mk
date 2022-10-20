@@ -1,5 +1,5 @@
 # golang utilities
-GO_MIN_VERSION = 1.17
+GO_MIN_VERSION = 1.18
 export GO111MODULE=on
 
 
@@ -12,7 +12,7 @@ GOTFLAGS ?=
 unexport GOFLAGS
 # Override so we can combine with the user's go flags.
 # Try to make building as reproducible as possible by stripping the go path.
-override GOFLAGS += "-asmflags=all='-trimpath=$(GOPATH)'" "-gcflags=all='-trimpath=$(GOPATH)'"
+override GOFLAGS += "-trimpath"
 
 ifeq ($(tarball-is),1)
 	GOFLAGS += -mod=vendor

@@ -21,9 +21,9 @@ import (
 	"github.com/ipfs/kubo/repo/fsrepo"
 
 	cmds "github.com/ipfs/go-ipfs-cmds"
-	inet "github.com/libp2p/go-libp2p-core/network"
-	"github.com/libp2p/go-libp2p-core/peer"
-	rcmgr "github.com/libp2p/go-libp2p-resource-manager"
+	inet "github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
 	mamask "github.com/whyrusleeping/multiaddr-filter"
@@ -401,7 +401,7 @@ Changes made via command line are persisted in the Swarm.ResourceMgr.Limits fiel
 
 		//  set scope limit to new values (when limit.json is passed as a second arg)
 		if req.Files != nil {
-			var newLimit rcmgr.BasicLimitConfig
+			var newLimit rcmgr.BaseLimit
 			it := req.Files.Entries()
 			if it.Next() {
 				file := files.FileFromEntry(it)

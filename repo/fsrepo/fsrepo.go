@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,6 +64,7 @@ func (err NoRepoError) Error() string {
 }
 
 const apiFile = "api"
+const gatewayFile = "gateway"
 const swarmKeyFile = "swarm.key"
 
 const specFn = "datastore_spec"
@@ -387,6 +389,44 @@ func (r *FSRepo) SetAPIAddr(addr ma.Multiaddr) error {
 	return err
 }
 
+// SetGatewayAddr writes the Gateway Addr to the /gateway file.
+func (r *FSRepo) SetGatewayAddr(addr net.Addr) error {
+	// Create a temp file to write the address, so that we don't leave empty file when the
+	// program crashes after creating the file.
+	tmpPath := filepath.Join(r.path, "."+gatewayFile+".tmp")
+	f, err := os.Create(tmpPath)
+	if err != nil {
+		return err
+	}
+	var good bool
+	// Silently remove as worst last case with defers.
+	defer func() {
+		if !good {
+			os.Remove(tmpPath)
+		}
+	}()
+	defer f.Close()
+
+	if _, err := fmt.Fprintf(f, "http://%s", addr.String()); err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return err
+	}
+
+	// Atomically rename the temp file to the correct file name.
+	err = os.Rename(tmpPath, filepath.Join(r.path, gatewayFile))
+	good = err == nil
+	if good {
+		return nil
+	}
+	// Remove the temp file when rename return error
+	if err1 := os.Remove(tmpPath); err1 != nil {
+		return fmt.Errorf("File Rename error: %w, File remove error: %s", err, err1.Error())
+	}
+	return err
+}
+
 // openConfig returns an error if the config file is not present.
 func (r *FSRepo) openConfig() error {
 	conf, err := serialize.Load(r.configFilePath)
@@ -474,6 +514,11 @@ func (r *FSRepo) Close() error {
 		log.Warn("error removing api file: ", err)
 	}
 
+	err = os.Remove(filepath.Join(r.path, gatewayFile))
+	if err != nil && !os.IsNotExist(err) {
+		log.Warn("error removing gateway file: ", err)
+	}
+
 	if err := r.ds.Close(); err != nil {
 		return err
 	}
@@ -537,17 +582,17 @@ func (r *FSRepo) BackupConfig(prefix string) (string, error) {
 // SetConfig updates the FSRepo's config. The user must not modify the config
 // object after calling this method.
 // FIXME: There is an inherent contradiction with storing non-user-generated
-//  Go config.Config structures as user-generated JSON nested maps. This is
-//  evidenced by the issue of `omitempty` property of fields that aren't defined
-//  by the user and Go still needs to initialize them to its default (which
-//  is not reflected in the repo's config file, see
-//  https://github.com/ipfs/kubo/issues/8088 for more details).
-//  In general we should call this API with a JSON nested maps as argument
-//  (`map[string]interface{}`). Many calls to this function are forced to
-//  synthesize the config.Config struct from their available JSON map just to
-//  satisfy this (causing incompatibilities like the `omitempty` one above).
-//  We need to comb SetConfig calls and replace them when possible with a
-//  JSON map variant.
+// Go config.Config structures as user-generated JSON nested maps. This is
+// evidenced by the issue of `omitempty` property of fields that aren't defined
+// by the user and Go still needs to initialize them to its default (which
+// is not reflected in the repo's config file, see
+// https://github.com/ipfs/kubo/issues/8088 for more details).
+// In general we should call this API with a JSON nested maps as argument
+// (`map[string]interface{}`). Many calls to this function are forced to
+// synthesize the config.Config struct from their available JSON map just to
+// satisfy this (causing incompatibilities like the `omitempty` one above).
+// We need to comb SetConfig calls and replace them when possible with a
+// JSON map variant.
 func (r *FSRepo) SetConfig(updated *config.Config) error {
 
 	// packageLock is held to provide thread-safety.
