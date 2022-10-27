@@ -3,8 +3,10 @@ package node
 import (
 	"context"
 
+	"github.com/diogo464/telemetry"
 	"github.com/ipfs/go-bitswap"
 	"github.com/ipfs/go-bitswap/network"
+	bitswap_telemetry "github.com/ipfs/go-bitswap/telemetry"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	exchange "github.com/ipfs/go-ipfs-exchange-interface"
 	"github.com/ipfs/kubo/config"
@@ -55,6 +57,7 @@ type onlineExchangeIn struct {
 
 	Mctx        helpers.MetricsCtx
 	Host        host.Host
+	Telemetry   *telemetry.Service
 	Rt          irouting.ProvideManyRouter
 	Bs          blockstore.GCBlockstore
 	BitswapOpts []bitswap.Option `group:"bitswap-options"`
@@ -73,6 +76,8 @@ func OnlineExchange() interface{} {
 				return exch.Close()
 			},
 		})
+		bitswap_telemetry.Start(exch)
+
 		return exch
 	}
 }

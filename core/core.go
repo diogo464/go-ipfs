@@ -13,6 +13,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/diogo464/telemetry"
 	"github.com/ipfs/go-filestore"
 	pin "github.com/ipfs/go-ipfs-pinner"
 
@@ -116,6 +117,8 @@ type IpfsNode struct {
 	// Flags
 	IsOnline bool `optional:"true"` // Online is set when networking is enabled.
 	IsDaemon bool `optional:"true"` // Daemon is set when running on a long-running daemon.
+
+	Telemetry *telemetry.Service
 }
 
 // Mounts defines what the node's mount state is. This should
@@ -128,6 +131,7 @@ type Mounts struct {
 
 // Close calls Close() on the App object
 func (n *IpfsNode) Close() error {
+	n.Telemetry.Close()
 	return n.stop()
 }
 
