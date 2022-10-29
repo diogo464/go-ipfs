@@ -105,8 +105,6 @@ func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *cfg.Config) {
 		return cfg.Host
 	})
 
-	telemetryOption := fx.Provide(DefaultTelemetryProvider)
-
 	routingOption := fx.Provide(func() libp2p.RoutingOption {
 		return cfg.Routing
 	})
@@ -119,7 +117,6 @@ func (cfg *BuildCfg) options(ctx context.Context) (fx.Option, *cfg.Config) {
 	return fx.Options(
 		repoOption,
 		hostOption,
-		telemetryOption,
 		routingOption,
 		metricsCtx,
 	), conf

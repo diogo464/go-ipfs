@@ -9,6 +9,7 @@ import (
 	logging "github.com/ipfs/go-log"
 	"github.com/ipfs/kubo/core"
 	"github.com/ipfs/kubo/core/corerepo"
+	"github.com/ipfs/kubo/telemetry/traceroute"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
@@ -31,6 +32,12 @@ type Stream struct {
 	Protocol  string `json:"protocol"`
 	Opened    int64  `json:"opened"`
 	Direction string `json:"direction"`
+}
+
+type Traceroute struct {
+	Target   peer.ID `json:"target"`
+	Provider string  `json:"provider"`
+	Output   []byte  `json:"output"`
 }
 
 type Connection struct {
@@ -57,6 +64,9 @@ func Start(node *core.IpfsNode) error {
 		return err
 	}
 	if err := registerNetworkMetrics(t, node); err != nil {
+		return err
+	}
+	if err := registerTraceroute(t, node); err != nil {
 		return err
 	}
 
@@ -296,6 +306,42 @@ func registerNetworkMetrics(t telemetry.Telemetry, node *core.IpfsNode) error {
 		totalIn.Observe(ctx, bt.TotalIn)
 		totalOut.Observe(ctx, bt.TotalOut)
 	})
+
+	return nil
+}
+
+func registerTraceroute(t telemetry.Telemetry, node *core.IpfsNode) error {
+	picker := newPeerPicker(node.PeerHost)
+	em := t.Event(telemetry.EventConfig{
+		Name:        "libp2p_misc_traceroute",
+		Description: "Traceroute",
+	})
+
+	go func() {
+		timeout := time.Second * 15
+
+		for {
+			time.Sleep(time.Second * 10)
+			if pid, ok := picker.pick(); ok {
+				addrinfo := node.PeerHost.Network().Peerstore().PeerInfo(pid)
+				addr, err := getFirstPublicAddressFromMultiaddrs(addrinfo.Addrs)
+				if err == nil {
+					ctx, cancel := context.WithTimeout(context.Background(), timeout)
+					result, err := traceroute.Trace(ctx, addr.String())
+					cancel()
+					if err == nil {
+						em.Emit(&Traceroute{
+							Target:   pid,
+							Provider: result.Provider,
+							Output:   result.Output,
+						})
+					} else if err != traceroute.ErrNoProviderAvailable {
+						log.Warn("Traceroute to ", addr, "failed with", err)
+					}
+				}
+			}
+		}
+	}()
 
 	return nil
 }

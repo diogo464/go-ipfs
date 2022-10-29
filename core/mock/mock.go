@@ -34,7 +34,7 @@ func NewMockNode() (*core.IpfsNode, error) {
 }
 
 func MockHostOption(mn mocknet.Mocknet) libp2p2.HostOption {
-	return func(id peer.ID, ps pstore.Peerstore, _ ...libp2p.Option) (host.Host, error) {
+	return func(id peer.ID, ps pstore.Peerstore, cfg config.Telemetry, _ ...libp2p.Option) (host.Host, error) {
 		return mn.AddPeerWithPeerstore(id, ps)
 	}
 }

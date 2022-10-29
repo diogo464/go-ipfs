@@ -2,6 +2,8 @@ module github.com/ipfs/kubo
 
 replace github.com/ipfs/go-bitswap => ../go-bitswap
 
+replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht
+
 replace github.com/diogo464/telemetry => ../../../telemetry
 
 require (

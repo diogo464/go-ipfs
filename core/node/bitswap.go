@@ -3,7 +3,6 @@ package node
 import (
 	"context"
 
-	"github.com/diogo464/telemetry"
 	"github.com/ipfs/go-bitswap"
 	"github.com/ipfs/go-bitswap/network"
 	bitswap_telemetry "github.com/ipfs/go-bitswap/telemetry"
@@ -57,7 +56,6 @@ type onlineExchangeIn struct {
 
 	Mctx        helpers.MetricsCtx
 	Host        host.Host
-	Telemetry   *telemetry.Service
 	Rt          irouting.ProvideManyRouter
 	Bs          blockstore.GCBlockstore
 	BitswapOpts []bitswap.Option `group:"bitswap-options"`
