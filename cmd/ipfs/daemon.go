@@ -41,8 +41,9 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	promauto "github.com/prometheus/client_golang/prometheus/promauto"
 
-	"github.com/diogo464/ipfs_telemetry/pkg/collectors"
-	"github.com/diogo464/telemetry"
+	ipfs_telemetry "github.com/ipfs/kubo/telemetry"
+	otel_host "go.opentelemetry.io/contrib/instrumentation/host"
+	otel_runtime "go.opentelemetry.io/contrib/instrumentation/runtime"
 )
 
 const (
@@ -543,6 +544,10 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		"version": version.CurrentVersionNumber,
 		"commit":  version.CurrentCommit,
 	}).Set(1)
+
+	otel_host.Start()
+	otel_runtime.Start()
+	ipfs_telemetry.Start(node)
 
 	// TODO(9285): make metrics more configurable
 	// initialize metrics collector

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ipfs/go-bitswap"
 	"github.com/ipfs/go-bitswap/network"
+	bitswap_telemetry "github.com/ipfs/go-bitswap/telemetry"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	exchange "github.com/ipfs/go-ipfs-exchange-interface"
 	"github.com/ipfs/kubo/config"
@@ -73,6 +74,8 @@ func OnlineExchange() interface{} {
 				return exch.Close()
 			},
 		})
+		bitswap_telemetry.Start(exch)
+
 		return exch
 	}
 }

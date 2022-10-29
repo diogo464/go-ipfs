@@ -36,6 +36,7 @@ type Config struct {
 	Experimental Experiments
 	Plugins      Plugins
 	Pinning      Pinning
+	Telemetry    Telemetry
 
 	Internal Internal // experimental/unstable options
 

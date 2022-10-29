@@ -1,89 +1,38 @@
 package config
 
-import (
-	"time"
+import "time"
+
+const (
+	DefaultMetricsPeriod        = 20 * time.Second
+	DefaultWindowDuration       = 30 * time.Minute
+	DefaultActiveBufferDuration = 5 * time.Minute
 )
 
-type TelemetryCollector struct {
-	Enabled  bool
-	Interval time.Duration
-}
-
-type TelemetryProperty struct {
-	Enabled bool
-}
-
-type TelemetryStream struct {
-	Duration       time.Duration
-	UpdateInterval time.Duration
-}
-
 type Telemetry struct {
-	Enabled    bool
-	Bandwidth  bool
-	Debug      bool
-	Stream     *TelemetryStream
-	Collectors map[string]*TelemetryCollector
-	Properties map[string]*TelemetryProperty
+	Disabled             bool
+	BandwidthDisabled    bool
+	MetricsPeriod        string
+	WindowDuration       string
+	ActiveBufferDuration string
+	DebugListener        string
 }
 
-var TelemetryDefault = Telemetry{
-	Enabled:   true,
-	Bandwidth: true,
-	Debug:     false,
-	Stream: &TelemetryStream{
-		Duration:       time.Minute * 30,
-		UpdateInterval: time.Minute * 5,
-	},
-	Collectors: map[string]*TelemetryCollector{
-		"bitswap": {
-			Enabled:  true,
-			Interval: time.Second * 30,
-		},
-		"connections": {
-			Enabled:  true,
-			Interval: time.Minute,
-		},
-		"kademlia": {
-			Enabled:  true,
-			Interval: time.Second * 30,
-		},
-		"kademliaquery": {
-			Enabled:  true,
-			Interval: time.Second * 5,
-		},
-		"kademliahandler": {
-			Enabled:  true,
-			Interval: time.Second * 5,
-		},
-		"network": {
-			Enabled:  true,
-			Interval: time.Second * 30,
-		},
-		"ping": {
-			Enabled:  true,
-			Interval: time.Second * 5,
-		},
-		"resources": {
-			Enabled:  true,
-			Interval: time.Second * 10,
-		},
-		"routingtable": {
-			Enabled:  true,
-			Interval: time.Minute,
-		},
-		"storage": {
-			Enabled:  true,
-			Interval: time.Minute,
-		},
-		"traceroute": {
-			Enabled:  true,
-			Interval: time.Second * 5,
-		},
-	},
-	Properties: map[string]*TelemetryProperty{
-		"provider_records": {
-			Enabled: true,
-		},
-	},
+func (t Telemetry) GetMetricsPeriod() time.Duration {
+	return parseDurationOrDefault(t.MetricsPeriod, DefaultMetricsPeriod)
+}
+
+func (t Telemetry) GetWindowDuration() time.Duration {
+	return parseDurationOrDefault(t.WindowDuration, DefaultWindowDuration)
+}
+
+func (t Telemetry) GetActiveBufferDuration() time.Duration {
+	return parseDurationOrDefault(t.ActiveBufferDuration, DefaultActiveBufferDuration)
+}
+
+func parseDurationOrDefault(d string, def time.Duration) time.Duration {
+	if dur, err := time.ParseDuration(d); err == nil {
+		return dur
+	} else {
+		return def
+	}
 }

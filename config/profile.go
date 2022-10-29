@@ -54,7 +54,6 @@ running IPFS on machines with public IPv4 addresses.`,
 			c.Swarm.AddrFilters = appendSingle(c.Swarm.AddrFilters, defaultServerFilters)
 			c.Discovery.MDNS.Enabled = false
 			c.Swarm.DisableNatPortMap = true
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -68,7 +67,6 @@ profile, enables discovery in local networks.`,
 			c.Swarm.AddrFilters = deleteEntries(c.Swarm.AddrFilters, defaultServerFilters)
 			c.Discovery.MDNS.Enabled = true
 			c.Swarm.DisableNatPortMap = false
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -87,7 +85,6 @@ is useful when using the daemon in test environments.`,
 
 			c.Bootstrap = []string{}
 			c.Discovery.MDNS.Enabled = false
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -106,7 +103,6 @@ Inverse profile of the test profile.`,
 
 			c.Swarm.DisableNatPortMap = false
 			c.Discovery.MDNS.Enabled = true
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -121,7 +117,6 @@ This profile may only be applied when first initializing the node.
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = flatfsSpec()
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -145,7 +140,6 @@ This profile may only be applied when first initializing the node.
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = flatfsSpec()
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -171,7 +165,6 @@ This profile may only be applied when first initializing the node.`,
 		InitOnly: true,
 		Transform: func(c *Config) error {
 			c.Datastore.Spec = badgerSpec()
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},
@@ -203,7 +196,6 @@ fetching may be degraded.
 				fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port),
 				fmt.Sprintf("/ip6/::/tcp/%d", port),
 			}
-			c.Telemetry = TelemetryDefault
 			return nil
 		},
 	},

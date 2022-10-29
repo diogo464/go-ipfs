@@ -13,6 +13,7 @@ import (
 	"context"
 	"io"
 
+	"github.com/diogo464/telemetry"
 	"github.com/ipfs/go-filestore"
 	pin "github.com/ipfs/go-ipfs-pinner"
 
@@ -128,6 +129,9 @@ type Mounts struct {
 
 // Close calls Close() on the App object
 func (n *IpfsNode) Close() error {
+	if t, ok := telemetry.GetGlobalTelemetry().(*telemetry.Service); ok {
+		t.Close()
+	}
 	return n.stop()
 }
 
