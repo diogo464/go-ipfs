@@ -126,7 +126,7 @@ replace github.com/diogo464/ipfs_telemetry => ../../
 
 require (
 	github.com/diogo464/ipfs_telemetry v0.0.0-00010101000000-000000000000
-	github.com/diogo464/telemetry v0.0.0-20220728212629-2df95c3e8f59
+	github.com/diogo464/telemetry v0.0.0-20221113152417-9e693d4ffc4f
 	github.com/ipfs/go-delegated-routing v0.6.0
 	github.com/ipfs/go-ipfs-redirects-file v0.1.1
 )
