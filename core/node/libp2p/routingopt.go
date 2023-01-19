@@ -44,7 +44,9 @@ func constructDHTRouting(mode dht.ModeOpt) func(
 				dht.Mode(mode),
 				dht.Datastore(dstore),
 				dht.Validator(validator)),
-			dual.WanDHTOption(dht.BootstrapPeers(bootstrapPeers...)),
+			dual.WanDHTOption(
+				dht.BootstrapPeers(bootstrapPeers...),
+			),
 		)
 	}
 }

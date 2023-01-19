@@ -5,12 +5,12 @@ import (
 
 	"github.com/ipfs/go-bitswap"
 	"github.com/ipfs/go-bitswap/network"
-	bitswap_telemetry "github.com/ipfs/go-bitswap/telemetry"
 	blockstore "github.com/ipfs/go-ipfs-blockstore"
 	exchange "github.com/ipfs/go-ipfs-exchange-interface"
 	"github.com/ipfs/kubo/config"
 	irouting "github.com/ipfs/kubo/routing"
 	"github.com/libp2p/go-libp2p/core/host"
+	"go.opentelemetry.io/otel/metric/global"
 	"go.uber.org/fx"
 
 	"github.com/ipfs/kubo/core/node/helpers"
@@ -39,12 +39,14 @@ func BitswapOptions(cfg *config.Config, provide bool) interface{} {
 			internalBsCfg = *cfg.Internal.Bitswap
 		}
 
+		provider := global.MeterProvider()
 		opts := []bitswap.Option{
 			bitswap.ProvideEnabled(provide),
 			bitswap.EngineBlockstoreWorkerCount(int(internalBsCfg.EngineBlockstoreWorkerCount.WithDefault(DefaultEngineBlockstoreWorkerCount))),
 			bitswap.TaskWorkerCount(int(internalBsCfg.TaskWorkerCount.WithDefault(DefaultTaskWorkerCount))),
 			bitswap.EngineTaskWorkerCount(int(internalBsCfg.EngineTaskWorkerCount.WithDefault(DefaultEngineTaskWorkerCount))),
 			bitswap.MaxOutstandingBytesPerPeer(int(internalBsCfg.MaxOutstandingBytesPerPeer.WithDefault(DefaultMaxOutstandingBytesPerPeer))),
+			bitswap.WithMeterProvider(provider),
 		}
 
 		return bitswapOptionsOut{BitswapOpts: opts}
@@ -74,7 +76,6 @@ func OnlineExchange() interface{} {
 				return exch.Close()
 			},
 		})
-		bitswap_telemetry.Start(exch)
 
 		return exch
 	}

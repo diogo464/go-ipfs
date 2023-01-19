@@ -30,10 +30,8 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 		opts := []telemetry.ServiceOption{
 			telemetry.WithServiceMetricsPeriod(cfg.GetMetricsPeriod()),
 			telemetry.WithServiceBandwidth(!cfg.BandwidthDisabled),
-			telemetry.WithServiceDefaultStreamOpts(
-				telemetry.WithStreamSegmentLifetime(cfg.GetWindowDuration()),
-				telemetry.WithStreamActiveBufferLifetime(cfg.GetActiveBufferDuration()),
-			),
+			telemetry.WithServiceActiveBufferDuration(cfg.GetActiveBufferDuration()),
+			telemetry.WithServiceWindowDuration(cfg.GetWindowDuration()),
 		}
 
 		if len(cfg.DebugListener) > 0 {
@@ -46,9 +44,7 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 			return err
 		}
 
-		fmt.Println("SETTING GLOBAL TELEMETRY")
-		global.SetMeterProvider(t)
-		telemetry.SetGlobalTelemetry(t)
+		global.SetMeterProvider(t.MeterProvider())
 
 		return nil
 	}
@@ -71,7 +67,7 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 		return nil, err
 	}
 
-	if telemetry.GetGlobalTelemetry() == nil {
+	if _, ok := global.MeterProvider().(telemetry.MeterProvider); !ok {
 		if err := telemetryConstructor(h); err != nil {
 			return nil, err
 		}

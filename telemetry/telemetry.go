@@ -14,6 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
 	"github.com/multiformats/go-multiaddr"
+	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
 	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
 	"go.opentelemetry.io/otel/metric/unit"
@@ -29,7 +30,8 @@ type ProtocolStats struct {
 }
 
 type Stream struct {
-	Protocol  string `json:"protocol"`
+	Protocol string `json:"protocol"`
+	// Timestamp of when the stream was opened
 	Opened    int64  `json:"opened"`
 	Direction string `json:"direction"`
 }
@@ -44,14 +46,19 @@ type Connection struct {
 	ID      peer.ID             `json:"id"`
 	Addr    multiaddr.Multiaddr `json:"addr"`
 	Latency int64               `json:"latency"`
-	Opened  int64               `json:"opened"`
-	Streams []Stream            `json:"streams"`
+	// Timestamp of when the connection was opened
+	Opened  int64    `json:"opened"`
+	Streams []Stream `json:"streams"`
 }
 
 func Start(node *core.IpfsNode) error {
-	t := telemetry.GetGlobalTelemetry()
-	if t == nil {
-		t = telemetry.NewNoOpTelemetry()
+	var t telemetry.MeterProvider
+	gm := global.MeterProvider()
+
+	if tm, ok := gm.(telemetry.MeterProvider); ok {
+		t = tm
+	} else {
+		t = telemetry.NewNoopMeterProvider()
 	}
 
 	if err := registerProperties(t); err != nil {
@@ -73,39 +80,42 @@ func Start(node *core.IpfsNode) error {
 	return nil
 }
 
-func registerProperties(t telemetry.Telemetry) error {
-	t.Property(telemetry.PropertyConfig{
-		Name:        "libp2p_host_os",
-		Description: "The operating system this node is running on. Obtained from runtime.GOOS",
-		Value:       telemetry.NewPropertyValueString(runtime.GOOS),
-	})
+func registerProperties(t telemetry.MeterProvider) error {
+	m := t.TelemetryMeter("libp2p.io/telemetry")
 
-	t.Property(telemetry.PropertyConfig{
-		Name:        "libp2p_host_arch",
-		Description: "The architecture this node is running on. Obtained from runtime.GOARCH",
-		Value:       telemetry.NewPropertyValueString(runtime.GOARCH),
-	})
+	m.Property(
+		"runtime.os",
+		telemetry.PropertyValueString(runtime.GOOS),
+		instrument.WithDescription("The operating system this node is running on. Obtained from runtime.GOOS"),
+	)
 
-	t.Property(telemetry.PropertyConfig{
-		Name:        "libp2p_host_numcpu",
-		Description: "The number of logical CPUs usable by the current process. Obtained from runtime.NumCPU",
-		Value:       telemetry.NewPropertyValueInteger(int64(runtime.NumCPU())),
-	})
+	m.Property(
+		"runtime.arch",
+		telemetry.PropertyValueString(runtime.GOARCH),
+		instrument.WithDescription("The architecture this node is running on. Obtained from runtime.GOARCH"),
+	)
 
-	t.Property(telemetry.PropertyConfig{
-		Name:        "libp2p_host_boottime",
-		Description: "Boottime of this node in UNIX seconds",
-		Value:       telemetry.NewPropertyValueInteger(time.Now().Unix()),
-	})
+	m.Property(
+		"runtime.numcpu",
+		telemetry.PropertyValueInteger(int64(runtime.NumCPU())),
+		instrument.WithDescription("The number of logical CPUs usable by the current process. Obtained from runtime.NumCPU"),
+	)
+
+	m.Property(
+		"boottime",
+		telemetry.PropertyValueInteger(time.Now().Unix()),
+		instrument.WithDescription("Boottime of this node in UNIX seconds"),
+	)
 
 	return nil
 }
 
-func registerNetworkCaptures(t telemetry.Telemetry, node *core.IpfsNode) error {
-	t.Capture(telemetry.CaptureConfig{
-		Name:        "libp2p_network_connections",
-		Description: "All current connections and streams of this node.",
-		Callback: func(context.Context) (interface{}, error) {
+func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) error {
+	m := t.TelemetryMeter("libp2p.io/telemetry")
+
+	m.Capture(
+		"network.connections",
+		func(context.Context) (interface{}, error) {
 			networkConns := node.PeerHost.Network().Conns()
 			connections := make([]Connection, 0, len(networkConns))
 
@@ -129,13 +139,13 @@ func registerNetworkCaptures(t telemetry.Telemetry, node *core.IpfsNode) error {
 
 			return connections, nil
 		},
-		Interval: time.Minute,
-	})
+		time.Minute,
+		instrument.WithDescription("All current connections and streams of this node."),
+	)
 
-	t.Capture(telemetry.CaptureConfig{
-		Name:        "libp2p_network_stats_by_protocol",
-		Description: "Network stats by protocol",
-		Callback: func(context.Context) (interface{}, error) {
+	m.Capture(
+		"network.stats_by_protocol",
+		func(context.Context) (interface{}, error) {
 			rstats := node.Reporter.GetBandwidthByProtocol()
 			stats := make(map[protocol.ID]ProtocolStats, len(rstats))
 			for k, v := range rstats {
@@ -143,22 +153,23 @@ func registerNetworkCaptures(t telemetry.Telemetry, node *core.IpfsNode) error {
 			}
 			return stats, nil
 		},
-		Interval: time.Minute,
-	})
+		time.Minute,
+		instrument.WithDescription("Network stats by protocol"),
+	)
 
-	t.Capture(telemetry.CaptureConfig{
-		Name:        "libp2p_network_addresses",
-		Description: "The addresses this node currently listens on",
-		Callback: func(context.Context) (interface{}, error) {
+	m.Capture(
+		"network.addresses",
+		func(context.Context) (interface{}, error) {
 			return node.PeerHost.Addrs(), nil
 		},
-		Interval: 2 * time.Minute,
-	})
+		2*time.Minute,
+		instrument.WithDescription("The addresses the node is listening on"),
+	)
 
 	return nil
 }
 
-func registerStorageMetrics(t telemetry.Telemetry, node *core.IpfsNode) error {
+func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) error {
 	var (
 		err error
 
@@ -212,7 +223,7 @@ func registerStorageMetrics(t telemetry.Telemetry, node *core.IpfsNode) error {
 	return nil
 }
 
-func registerNetworkMetrics(t telemetry.Telemetry, node *core.IpfsNode) error {
+func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) error {
 	var (
 		err error
 
@@ -310,13 +321,14 @@ func registerNetworkMetrics(t telemetry.Telemetry, node *core.IpfsNode) error {
 	return nil
 }
 
-func registerTraceroute(t telemetry.Telemetry, node *core.IpfsNode) error {
-	picker := newPeerPicker(node.PeerHost)
-	em := t.Event(telemetry.EventConfig{
-		Name:        "libp2p_misc_traceroute",
-		Description: "Traceroute",
-	})
+func registerTraceroute(t telemetry.MeterProvider, node *core.IpfsNode) error {
+	m := t.TelemetryMeter("libp2p.io/telemetry")
 
+	picker := newPeerPicker(node.PeerHost)
+	em := m.Event(
+		"traceroute",
+		instrument.WithDescription("Traceroute"),
+	)
 	go func() {
 		timeout := time.Second * 15
 
