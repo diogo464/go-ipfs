@@ -1,10 +1,8 @@
 module github.com/ipfs/kubo
 
-replace github.com/ipfs/go-bitswap => ../go-bitswap
+replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230119211525-18a9eddd0347
 
-replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht
-
-replace github.com/diogo464/telemetry => ../../../telemetry
+replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230119211940-0db0053242d3
 
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
@@ -46,7 +44,7 @@ require (
 	github.com/ipfs/go-ipfs-pinner v0.2.1
 	github.com/ipfs/go-ipfs-posinfo v0.0.1
 	github.com/ipfs/go-ipfs-provider v0.7.1
-	github.com/ipfs/go-ipfs-routing v0.2.1
+	github.com/ipfs/go-ipfs-routing v0.3.0
 	github.com/ipfs/go-ipfs-util v0.0.2
 	github.com/ipfs/go-ipld-cbor v0.0.5
 	github.com/ipfs/go-ipld-format v0.4.0
@@ -122,7 +120,7 @@ require (
 
 require (
 	github.com/benbjohnson/clock v1.3.0
-	github.com/diogo464/telemetry v0.0.0-00010101000000-000000000000
+	github.com/diogo464/telemetry v0.0.0-20230119205317-4e2e5a84322a
 	github.com/ipfs/go-delegated-routing v0.6.0
 	github.com/ipfs/go-ipfs-redirects-file v0.1.1
 	github.com/ipfs/go-log/v2 v2.5.1
@@ -178,7 +176,7 @@ require (
 	github.com/ipfs/go-ipfs-delay v0.0.1 // indirect
 	github.com/ipfs/go-ipfs-ds-help v1.1.0 // indirect
 	github.com/ipfs/go-ipfs-pq v0.0.2 // indirect
-	github.com/ipfs/go-peertaskqueue v0.7.1 // indirect
+	github.com/ipfs/go-peertaskqueue v0.8.0 // indirect
 	github.com/ipld/edelweiss v0.2.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/klauspost/compress v1.15.10 // indirect
