@@ -49,6 +49,7 @@ RUN set -eux; \
 # Now comes the actual target image, which aims to be as small as possible.
 FROM busybox:1.31.1-glibc
 LABEL maintainer="Steven Allen <steven@stebalien.com>"
+LABEL org.opencontainers.image.source=https://github.com/diogo464/go-ipfs
 
 # Get the ipfs binary, entrypoint script, and TLS CAs from the build container.
 ENV SRC_DIR /kubo
