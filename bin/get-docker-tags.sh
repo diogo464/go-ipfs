@@ -57,7 +57,7 @@ elif [ "$GIT_BRANCH" = "master" ]; then
   echoImageName "master-${BUILD_NUM}-${GIT_SHA1_SHORT}"
   echoImageName "master-latest"
 
-elif [ "$GIT_BRANCH" = "telemetry"]; then
+elif [ "$GIT_BRANCH" = "telemetry" ]; then
   echoImageName "telemetry-${BUILD_NUM}-${GIT_SHA1_SHORT}"
   echoImageName "telemetry-latest"
 
