@@ -17,7 +17,7 @@ jobs:
     name: Push Docker image to Github Container Registry
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: diogo464/kubo
+      IMAGE_NAME: diogo464/go-ipfs
       LEGACY_IMAGE_NAME: diogo464/go-ipfs
     strategy:
       fail-fast: true
