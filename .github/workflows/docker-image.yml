@@ -14,6 +14,9 @@ jobs:
     if: github.repository == 'diogo464/go-ipfs' || github.event_name == 'workflow_dispatch'
     name: Push Docker image to Github Container Registry
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       IMAGE_NAME: diogo464/kubo
       LEGACY_IMAGE_NAME: diogo464/go-ipfs
