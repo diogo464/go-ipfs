@@ -10,10 +10,10 @@ import (
 	"github.com/ipfs/kubo/core"
 	"github.com/ipfs/kubo/core/corerepo"
 	"github.com/ipfs/kubo/telemetry/traceroute"
-	"github.com/libp2p/go-libp2p-core/protocol"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
 	"github.com/multiformats/go-multiaddr"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
 	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
@@ -144,20 +144,6 @@ func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) err
 	)
 
 	m.Capture(
-		"network.stats_by_protocol",
-		func(context.Context) (interface{}, error) {
-			rstats := node.Reporter.GetBandwidthByProtocol()
-			stats := make(map[protocol.ID]ProtocolStats, len(rstats))
-			for k, v := range rstats {
-				stats[k] = ProtocolStats(v)
-			}
-			return stats, nil
-		},
-		time.Minute,
-		instrument.WithDescription("Network stats by protocol"),
-	)
-
-	m.Capture(
 		"network.addresses",
 		func(context.Context) (interface{}, error) {
 			return node.PeerHost.Addrs(), nil
@@ -236,7 +222,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		totalOut    asyncint64.Counter
 	)
 
-	m := t.Meter("libp2p.io/ipfs/network")
+	m := t.Meter("libp2p.io/network")
 
 	if lowWater, err = m.AsyncInt64().UpDownCounter(
 		"low_water",
@@ -316,6 +302,13 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		rateOut.Observe(ctx, int64(bt.RateOut))
 		totalIn.Observe(ctx, bt.TotalIn)
 		totalOut.Observe(ctx, bt.TotalOut)
+
+		for p, s := range node.Reporter.GetBandwidthByProtocol() {
+			rateIn.Observe(ctx, int64(s.RateIn), attribute.String("protocol", string(p)))
+			rateOut.Observe(ctx, int64(s.RateOut), attribute.String("protocol", string(p)))
+			totalIn.Observe(ctx, s.TotalIn, attribute.String("protocol", string(p)))
+			totalOut.Observe(ctx, s.TotalOut, attribute.String("protocol", string(p)))
+		}
 	})
 
 	return nil
