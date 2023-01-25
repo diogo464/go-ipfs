@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/diogo464/telemetry"
+	version "github.com/ipfs/kubo"
 	ipfs_config "github.com/ipfs/kubo/config"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/config"
@@ -12,6 +13,8 @@ import (
 	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/libp2p/go-libp2p/core/routing"
 	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/sdk/resource"
+	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 )
 
 type HostOption func(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telemetry, options ...libp2p.Option) (host.Host, error)
@@ -32,6 +35,11 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 			telemetry.WithServiceBandwidth(!cfg.BandwidthDisabled),
 			telemetry.WithServiceActiveBufferDuration(cfg.GetActiveBufferDuration()),
 			telemetry.WithServiceWindowDuration(cfg.GetWindowDuration()),
+			telemetry.WithServiceResource(resource.NewWithAttributes(
+				semconv.SchemaURL,
+				semconv.ServiceNameKey.String("ipfs"),
+				semconv.ServiceVersionKey.String(version.CurrentVersionNumber),
+			)),
 		}
 
 		if len(cfg.DebugListener) > 0 {
