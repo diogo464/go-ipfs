@@ -207,10 +207,11 @@ github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 h1:tdlZCpZ/P9DhczC
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/diogo464/go-bitswap v0.6.1-0.20230125203916-df46284e1268 h1:AVL2UmO4kFuHjxWt4eW87PcHqAAmEdkN5pd4cdflBHQ=
 github.com/diogo464/go-bitswap v0.6.1-0.20230125203916-df46284e1268/go.mod h1:6oAEaHUPfmjbxUNw1PedjM8fQ+19TddIYAG+l7EK2lo=
-github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230125203928-9f03c36e8518 h1:Q+OGH2vnv7DRX+yC4GgWJ+nbsMagwEpqGFnFiZTPl/M=
-github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230125203928-9f03c36e8518/go.mod h1:cRc3g1BrDWhibp/uAYD/Zbw3KvhNm+46zmnB0ho1h6E=
-github.com/diogo464/telemetry v0.0.0-20230125203808-2f6d563d8895 h1:aBrh6LdgFkpdzZSjcnMj/3rw57Wk3YG2vJDN36/ZJu8=
+github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230125210409-bb738d92bf57 h1:VZdmi8G/LN4GCHr+f9D0Iz8mernVOvf4rNojL/Nm9A0=
+github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230125210409-bb738d92bf57/go.mod h1:+kA3uVZdrGISZeagqrzvgGonAU7z6lPoJS/eSFK8zPo=
 github.com/diogo464/telemetry v0.0.0-20230125203808-2f6d563d8895/go.mod h1:btTo07XWD4knlzyR8BM5prlD2AQRtO9HwIQBhwwgVHg=
+github.com/diogo464/telemetry v0.0.0-20230125210006-f2ce0b1ca3dd h1:YctaHFmH6a7ZoTZYwtJejDuKrrLLuvx/yHxLaxxYNPE=
+github.com/diogo464/telemetry v0.0.0-20230125210006-f2ce0b1ca3dd/go.mod h1:btTo07XWD4knlzyR8BM5prlD2AQRtO9HwIQBhwwgVHg=
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4=
 github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=

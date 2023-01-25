@@ -7,6 +7,7 @@ import (
 	version "github.com/ipfs/kubo"
 	ipfs_config "github.com/ipfs/kubo/config"
 	"github.com/libp2p/go-libp2p"
+	kad_metrics "github.com/libp2p/go-libp2p-kad-dht/metrics"
 	"github.com/libp2p/go-libp2p/config"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -42,6 +43,9 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 			)),
 			telemetry.WithServiceAccessType(cfg.AccessType),
 			telemetry.WithServiceAccessWhitelist(cfg.Whitelist...),
+
+			// Views
+			telemetry.WithServiceViews(kad_metrics.Views...),
 		}
 
 		if len(cfg.DebugListener) > 0 {
