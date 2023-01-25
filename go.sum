@@ -215,6 +215,8 @@ github.com/diogo464/telemetry v0.0.0-20230125103433-cb286fc68c83 h1:2hX2AVlUXrtZ
 github.com/diogo464/telemetry v0.0.0-20230125103433-cb286fc68c83/go.mod h1:HeO6m0avgTX5ofjRCyg+jZ/YbcWMPHABbXunqGMqBUI=
 github.com/diogo464/telemetry v0.0.0-20230125110919-f026d0ec3ddd h1:OXhBI58VT1CAOme7yXOCgVYs4xIaLAnMvZFjkdIodE8=
 github.com/diogo464/telemetry v0.0.0-20230125110919-f026d0ec3ddd/go.mod h1:HeO6m0avgTX5ofjRCyg+jZ/YbcWMPHABbXunqGMqBUI=
+github.com/diogo464/telemetry v0.0.0-20230125121843-9af28aa02a30 h1:iSinuwbUCxIimp3/IxgRYBC/1uwA/f7F3xggAWKlxB4=
+github.com/diogo464/telemetry v0.0.0-20230125121843-9af28aa02a30/go.mod h1:HeO6m0avgTX5ofjRCyg+jZ/YbcWMPHABbXunqGMqBUI=
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4=
 github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=

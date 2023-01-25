@@ -1,20 +1,29 @@
 package config
 
-import "time"
+import (
+	"time"
+
+	"github.com/diogo464/telemetry"
+	"github.com/libp2p/go-libp2p/core/peer"
+)
 
 const (
 	DefaultMetricsPeriod        = 20 * time.Second
 	DefaultWindowDuration       = 30 * time.Minute
 	DefaultActiveBufferDuration = 5 * time.Minute
+	DefaultAccessType           = telemetry.ServiceAccessPublic
 )
 
 type Telemetry struct {
-	Disabled             bool
-	BandwidthDisabled    bool
-	MetricsPeriod        string
-	WindowDuration       string
-	ActiveBufferDuration string
-	DebugListener        string
+	Enabled          bool
+	BandwidthEnabled bool
+	AccessType       telemetry.ServiceAccessType
+
+	Whitelist            []peer.ID `json:",omitempty"`
+	MetricsPeriod        string    `json:",omitempty"`
+	WindowDuration       string    `json:",omitempty"`
+	ActiveBufferDuration string    `json:",omitempty"`
+	DebugListener        string    `json:",omitempty"`
 }
 
 func (t Telemetry) GetMetricsPeriod() time.Duration {

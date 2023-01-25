@@ -117,7 +117,7 @@ require (
 )
 
 require (
-	github.com/diogo464/telemetry v0.0.0-20230125110919-f026d0ec3ddd
+	github.com/diogo464/telemetry v0.0.0-20230125121843-9af28aa02a30
 	github.com/libp2p/go-libp2p-core v0.20.1
 	go.opentelemetry.io/contrib/instrumentation/host v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.4

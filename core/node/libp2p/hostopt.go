@@ -32,7 +32,7 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 	telemetryConstructor := func(h host.Host) error {
 		opts := []telemetry.ServiceOption{
 			telemetry.WithServiceMetricsPeriod(cfg.GetMetricsPeriod()),
-			telemetry.WithServiceBandwidth(!cfg.BandwidthDisabled),
+			telemetry.WithServiceBandwidth(cfg.BandwidthEnabled),
 			telemetry.WithServiceActiveBufferDuration(cfg.GetActiveBufferDuration()),
 			telemetry.WithServiceWindowDuration(cfg.GetWindowDuration()),
 			telemetry.WithServiceResource(resource.NewWithAttributes(
@@ -40,6 +40,8 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 				semconv.ServiceNameKey.String("ipfs"),
 				semconv.ServiceVersionKey.String(version.CurrentVersionNumber),
 			)),
+			telemetry.WithServiceAccessType(cfg.AccessType),
+			telemetry.WithServiceAccessWhitelist(cfg.Whitelist...),
 		}
 
 		if len(cfg.DebugListener) > 0 {
