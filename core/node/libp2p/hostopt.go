@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/diogo464/telemetry"
+	bs_metrics "github.com/ipfs/go-bitswap/metrics"
 	version "github.com/ipfs/kubo"
 	ipfs_config "github.com/ipfs/kubo/config"
 	"github.com/libp2p/go-libp2p"
@@ -46,6 +47,7 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 
 			// Views
 			telemetry.WithServiceViews(kad_metrics.Views...),
+			telemetry.WithServiceViews(bs_metrics.Views...),
 		}
 
 		if len(cfg.DebugListener) > 0 {

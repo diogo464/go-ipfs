@@ -1,6 +1,6 @@
 module github.com/ipfs/kubo
 
-replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230125203916-df46284e1268
+replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230125223703-944f1744ba07
 
 replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230125210409-bb738d92bf57
 
