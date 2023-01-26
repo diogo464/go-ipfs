@@ -111,11 +111,13 @@ func registerProperties(t telemetry.MeterProvider) error {
 }
 
 func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) error {
-	m := t.TelemetryMeter("libp2p.io/telemetry")
+	m := t.TelemetryMeter("libp2p.io/network")
 
-	m.Capture(
-		"network.connections",
-		func(context.Context) (interface{}, error) {
+	m.PeriodicEvent(
+		context.TODO(),
+		"connections",
+		time.Minute,
+		func(_ context.Context, e telemetry.EventEmitter) error {
 			networkConns := node.PeerHost.Network().Conns()
 			connections := make([]Connection, 0, len(networkConns))
 
@@ -137,18 +139,20 @@ func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) err
 				})
 			}
 
-			return connections, nil
+			e.Emit(connections)
+			return nil
 		},
-		time.Minute,
 		instrument.WithDescription("All current connections and streams of this node."),
 	)
 
-	m.Capture(
-		"network.addresses",
-		func(context.Context) (interface{}, error) {
-			return node.PeerHost.Addrs(), nil
-		},
+	m.PeriodicEvent(
+		context.TODO(),
+		"addresses",
 		2*time.Minute,
+		func(_ context.Context, e telemetry.EventEmitter) error {
+			e.Emit(node.PeerHost.Addrs())
+			return nil
+		},
 		instrument.WithDescription("The addresses the node is listening on"),
 	)
 
@@ -205,6 +209,9 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		storageObjects.Observe(ctx, int64(stat.NumObjects))
 		storageTotal.Observe(ctx, int64(stat.StorageMax))
 	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -315,7 +322,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 }
 
 func registerTraceroute(t telemetry.MeterProvider, node *core.IpfsNode) error {
-	m := t.TelemetryMeter("libp2p.io/telemetry")
+	m := t.TelemetryMeter("libp2p.io/misc")
 
 	picker := newPeerPicker(node.PeerHost)
 	em := m.Event(
