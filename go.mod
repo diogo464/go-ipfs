@@ -1,8 +1,8 @@
 module github.com/ipfs/kubo
 
-replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230126124013-f0233ad17bff
+replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230128185758-430f4d3d2812
 
-replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230126124005-b4ecf754aa5f
+replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230128185750-d1430c713c3b
 
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc

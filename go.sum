@@ -205,10 +205,10 @@ github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZm
 github.com/dgryski/go-farm v0.0.0-20190104051053-3adb47b1fb0f/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2 h1:tdlZCpZ/P9DhczCTSixgIKmwPv6+wP5DGjqLYw5SUiA=
 github.com/dgryski/go-farm v0.0.0-20190423205320-6a90982ecee2/go.mod h1:SqUrOPUnsFjfmXRMNPybcSiG0BgUW2AuFH8PAnS2iTw=
-github.com/diogo464/go-bitswap v0.6.1-0.20230126124013-f0233ad17bff h1:U3tNCLq7F/HdaelIitql24j2W4+mNcapAhkklDNiWQc=
-github.com/diogo464/go-bitswap v0.6.1-0.20230126124013-f0233ad17bff/go.mod h1:WYwTvej4HgUBgAdZ+bHTf3yzhQndxae35GXKaxY3G34=
-github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230126124005-b4ecf754aa5f h1:KA1HcKBlG0yZvPj+6Jqg1/Bjqlid1wbhRizkfd0fiUw=
-github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230126124005-b4ecf754aa5f/go.mod h1:SZsoCEQAOqg3wg5B9Nhj5DvnPjm5XYidUVMASMFvtxU=
+github.com/diogo464/go-bitswap v0.6.1-0.20230128185758-430f4d3d2812 h1:Me6CsyhtVyVDm7Hnt1oiFtysHZC6dkYn8m0BzCMkZ2I=
+github.com/diogo464/go-bitswap v0.6.1-0.20230128185758-430f4d3d2812/go.mod h1:WYwTvej4HgUBgAdZ+bHTf3yzhQndxae35GXKaxY3G34=
+github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230128185750-d1430c713c3b h1:KU583nV5UZ8Sbcp2FMnh1E0QGzPBFRZ+jUJ1ugsQfFI=
+github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230128185750-d1430c713c3b/go.mod h1:SZsoCEQAOqg3wg5B9Nhj5DvnPjm5XYidUVMASMFvtxU=
 github.com/diogo464/telemetry v0.0.0-20230126123658-2df710596e93 h1:1Az8AJkq/X5/k2oFoMkFuzKxKSFGyGErFTdvXsJv//A=
 github.com/diogo464/telemetry v0.0.0-20230126123658-2df710596e93/go.mod h1:btTo07XWD4knlzyR8BM5prlD2AQRtO9HwIQBhwwgVHg=
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
