@@ -84,25 +84,25 @@ func registerProperties(t telemetry.MeterProvider) error {
 	m := t.TelemetryMeter("libp2p.io/telemetry")
 
 	m.Property(
-		"runtime.os",
+		"process.runtime.os",
 		telemetry.PropertyValueString(runtime.GOOS),
 		instrument.WithDescription("The operating system this node is running on. Obtained from runtime.GOOS"),
 	)
 
 	m.Property(
-		"runtime.arch",
+		"process.runtime.arch",
 		telemetry.PropertyValueString(runtime.GOARCH),
 		instrument.WithDescription("The architecture this node is running on. Obtained from runtime.GOARCH"),
 	)
 
 	m.Property(
-		"runtime.numcpu",
+		"process.runtime.numcpu",
 		telemetry.PropertyValueInteger(int64(runtime.NumCPU())),
 		instrument.WithDescription("The number of logical CPUs usable by the current process. Obtained from runtime.NumCPU"),
 	)
 
 	m.Property(
-		"boottime",
+		"process.boottime",
 		telemetry.PropertyValueInteger(time.Now().Unix()),
 		instrument.WithDescription("Boottime of this node in UNIX seconds"),
 	)
@@ -115,7 +115,7 @@ func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) err
 
 	m.PeriodicEvent(
 		context.TODO(),
-		"connections",
+		"libp2p.network.connections",
 		time.Minute,
 		func(_ context.Context, e telemetry.EventEmitter) error {
 			networkConns := node.PeerHost.Network().Conns()
@@ -147,7 +147,7 @@ func registerNetworkCaptures(t telemetry.MeterProvider, node *core.IpfsNode) err
 
 	m.PeriodicEvent(
 		context.TODO(),
-		"addresses",
+		"libp2p.network.addresses",
 		2*time.Minute,
 		func(_ context.Context, e telemetry.EventEmitter) error {
 			e.Emit(node.PeerHost.Addrs())
@@ -171,7 +171,7 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	meter := t.Meter("libp2p.io/ipfs/storage")
 
 	if storageUsed, err = meter.AsyncInt64().UpDownCounter(
-		"used",
+		"ipfs.storage.used",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Total number of bytes used by storage"),
 	); err != nil {
@@ -179,7 +179,7 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if storageObjects, err = meter.AsyncInt64().UpDownCounter(
-		"objects",
+		"ipfs.storage.objects",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Total number of objects in storage"),
 	); err != nil {
@@ -187,7 +187,7 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if storageTotal, err = meter.AsyncInt64().UpDownCounter(
-		"total",
+		"ipfs.storage.total",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Total number of bytes avaible for storage"),
 	); err != nil {
@@ -232,7 +232,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	m := t.Meter("libp2p.io/network")
 
 	if lowWater, err = m.AsyncInt64().UpDownCounter(
-		"low_water",
+		"libp2p.network.low_water",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Network Low Water number of peers"),
 	); err != nil {
@@ -240,7 +240,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if highWater, err = m.AsyncInt64().UpDownCounter(
-		"high_water",
+		"libp2p.network.high_water",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Network High Water number of peers"),
 	); err != nil {
@@ -248,7 +248,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if connections, err = m.AsyncInt64().UpDownCounter(
-		"connections",
+		"libp2p.network.connections",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Number of connections"),
 	); err != nil {
@@ -256,7 +256,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if rateIn, err = m.AsyncInt64().UpDownCounter(
-		"rate_in",
+		"libp2p.network.rate_in",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network in rate in bytes per second"),
 	); err != nil {
@@ -264,7 +264,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if rateOut, err = m.AsyncInt64().UpDownCounter(
-		"rate_out",
+		"libp2p.network.rate_out",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network out rate in bytes per second"),
 	); err != nil {
@@ -272,7 +272,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if totalIn, err = m.AsyncInt64().UpDownCounter(
-		"total_in",
+		"libp2p.network.total_in",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network total bytes in"),
 	); err != nil {
@@ -280,7 +280,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	}
 
 	if totalOut, err = m.AsyncInt64().UpDownCounter(
-		"total_out",
+		"libp2p.network.total_out",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network total bytes out"),
 	); err != nil {
@@ -326,7 +326,7 @@ func registerTraceroute(t telemetry.MeterProvider, node *core.IpfsNode) error {
 
 	picker := newPeerPicker(node.PeerHost)
 	em := m.Event(
-		"traceroute",
+		"telemetry.misc.traceroute",
 		instrument.WithDescription("Traceroute"),
 	)
 	go func() {
