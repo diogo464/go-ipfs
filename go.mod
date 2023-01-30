@@ -1,8 +1,8 @@
 module github.com/ipfs/kubo
 
-replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230128185758-430f4d3d2812
+replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230130124903-b1eb77da284f
 
-replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230128185750-d1430c713c3b
+replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230130124946-eefa29a81479
 
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
@@ -117,11 +117,12 @@ require (
 )
 
 require (
-	github.com/diogo464/telemetry v0.0.0-20230126123658-2df710596e93
+	github.com/diogo464/telemetry v0.0.0-20230130124721-5e7cee66e864
 	github.com/libp2p/go-libp2p-core v0.20.1
 	go.opentelemetry.io/contrib/instrumentation/host v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.4
 	go.opentelemetry.io/otel/metric v0.34.0
+	go.opentelemetry.io/otel/sdk/metric v0.34.0
 	golang.org/x/crypto v0.1.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/sys v0.2.0
@@ -249,7 +250,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.11.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.11.2 // indirect
-	go.opentelemetry.io/otel/sdk/metric v0.34.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect

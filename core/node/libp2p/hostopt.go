@@ -14,7 +14,9 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/libp2p/go-libp2p/core/routing"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
+	sdk_metric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 )
@@ -37,30 +39,36 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 			telemetry.WithServiceBandwidth(cfg.BandwidthEnabled),
 			telemetry.WithServiceActiveBufferDuration(cfg.GetActiveBufferDuration()),
 			telemetry.WithServiceWindowDuration(cfg.GetWindowDuration()),
-			telemetry.WithServiceResource(resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String("ipfs"),
-				semconv.ServiceVersionKey.String(version.CurrentVersionNumber),
-			)),
 			telemetry.WithServiceAccessType(cfg.AccessType),
 			telemetry.WithServiceAccessWhitelist(cfg.Whitelist...),
 
-			// Views
-			telemetry.WithServiceViews(kad_metrics.Views...),
-			telemetry.WithServiceViews(bs_metrics.Views...),
+			// MeterProvider Factory
+			telemetry.WithMeterProviderFactory(func(r sdk_metric.Reader) (metric.MeterProvider, error) {
+				return sdk_metric.NewMeterProvider(
+					sdk_metric.WithResource(resource.NewWithAttributes(
+						semconv.SchemaURL,
+						semconv.ServiceNameKey.String("ipfs"),
+						semconv.ServiceVersionKey.String(version.CurrentVersionNumber),
+					)),
+					sdk_metric.WithReader(r),
+
+					// Views
+					sdk_metric.WithView(kad_metrics.Views...),
+					sdk_metric.WithView(bs_metrics.Views...),
+				), nil
+			}),
 		}
 
 		if len(cfg.DebugListener) > 0 {
 			opts = append(opts, telemetry.WithServiceTcpListener(cfg.DebugListener))
 		}
 
-		t, err := telemetry.NewService(h, opts...)
-
+		_, mp, err := telemetry.NewService(h, opts...)
 		if err != nil {
 			return err
 		}
 
-		global.SetMeterProvider(t.MeterProvider())
+		global.SetMeterProvider(mp)
 
 		return nil
 	}
