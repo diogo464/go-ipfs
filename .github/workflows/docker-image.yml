@@ -39,9 +39,9 @@ jobs:
       - name: Get tags
         id: tags
         run: |
-          TAGS="$(./bin/get-docker-tags.sh $(date -u +%F))"
-          TAGS="${TAGS//$'\n'/'%0A'}"
-          echo "::set-output name=value::$(echo $TAGS)"
+          echo "value<<EOF" >> $GITHUB_OUTPUT
+          ./bin/get-docker-tags.sh "$(date -u +%F)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Build Docker image and publish to Github container registry
