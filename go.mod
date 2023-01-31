@@ -1,8 +1,8 @@
 module github.com/ipfs/kubo
 
-replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230130124903-b1eb77da284f
+replace github.com/ipfs/go-bitswap => github.com/diogo464/go-bitswap v0.6.1-0.20230131121058-e7553678ff12
 
-replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230130124946-eefa29a81479
+replace github.com/libp2p/go-libp2p-kad-dht => github.com/diogo464/go-libp2p-kad-dht v0.15.1-0.20230131121108-4e052cae17f7
 
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
@@ -117,7 +117,7 @@ require (
 )
 
 require (
-	github.com/diogo464/telemetry v0.0.0-20230130124721-5e7cee66e864
+	github.com/diogo464/telemetry v0.5.0
 	github.com/libp2p/go-libp2p-core v0.20.1
 	go.opentelemetry.io/contrib/instrumentation/host v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.36.4
