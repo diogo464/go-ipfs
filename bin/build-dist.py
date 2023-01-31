@@ -20,4 +20,4 @@ for goos, goarch in itertools.product(GOOS, GOARCH):
     print(f"building {goos}/{goarch}")
     env = os.environ | {"GOOS": goos, "GOARCH": goarch}
     subprocess.run(["make", "build"], env=env).check_returncode()
-    os.rename("cmd/ipfs/ipfs", f"dist/ipfs_{goos}_{goarch}-{tag}")
+    os.rename("cmd/ipfs/ipfs", f"dist/kubo_{goos}_{goarch}-{tag}")
