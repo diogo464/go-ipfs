@@ -14,6 +14,7 @@ import (
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/libp2p/go-libp2p/core/peerstore"
 	"github.com/libp2p/go-libp2p/core/routing"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	sdk_metric "go.opentelemetry.io/otel/sdk/metric"
@@ -49,6 +50,7 @@ func constructPeerHost(id peer.ID, ps peerstore.Peerstore, cfg ipfs_config.Telem
 						semconv.SchemaURL,
 						semconv.ServiceNameKey.String("ipfs"),
 						semconv.ServiceVersionKey.String(version.CurrentVersionNumber),
+						attribute.String("peerid", id.String()),
 					)),
 					sdk_metric.WithReader(r),
 
