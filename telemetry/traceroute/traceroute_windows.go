@@ -3,7 +3,10 @@
 
 package traceroute
 
-import "os/exec"
+import (
+	"context"
+	"os/exec"
+)
 
 var providerTracert = provider{
 	name: "tracert",
