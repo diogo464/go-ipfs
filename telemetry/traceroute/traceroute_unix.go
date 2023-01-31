@@ -1,5 +1,5 @@
-//go:build linux || darwin
-// +build linux darwin
+//go:build linux || darwin || freebsd || openbsd
+// +build linux darwin freebsd openbsd
 
 package traceroute
 

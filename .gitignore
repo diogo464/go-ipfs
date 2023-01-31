@@ -21,6 +21,8 @@ bin/tmp
 bin/gocovmerge
 bin/cover
 
+# ignore distribution binaries
+dist/
 
 vendor
 .tarball
