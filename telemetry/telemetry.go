@@ -14,9 +14,9 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
 	"github.com/multiformats/go-multiaddr"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/instrument"
-	"go.opentelemetry.io/otel/metric/instrument/asyncint64"
 	"go.opentelemetry.io/otel/metric/unit"
 )
 
@@ -163,14 +163,14 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	var (
 		err error
 
-		storageUsed    asyncint64.UpDownCounter
-		storageObjects asyncint64.UpDownCounter
-		storageTotal   asyncint64.UpDownCounter
+		storageUsed    instrument.Int64ObservableUpDownCounter
+		storageObjects instrument.Int64ObservableUpDownCounter
+		storageTotal   instrument.Int64ObservableUpDownCounter
 	)
 
 	meter := t.Meter("libp2p.io/ipfs/storage")
 
-	if storageUsed, err = meter.AsyncInt64().UpDownCounter(
+	if storageUsed, err = meter.Int64ObservableUpDownCounter(
 		"ipfs.storage.used",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Total number of bytes used by storage"),
@@ -178,7 +178,7 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if storageObjects, err = meter.AsyncInt64().UpDownCounter(
+	if storageObjects, err = meter.Int64ObservableUpDownCounter(
 		"ipfs.storage.objects",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Total number of objects in storage"),
@@ -186,7 +186,7 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if storageTotal, err = meter.AsyncInt64().UpDownCounter(
+	if storageTotal, err = meter.Int64ObservableUpDownCounter(
 		"ipfs.storage.total",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Total number of bytes avaible for storage"),
@@ -194,21 +194,23 @@ func registerStorageMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	err = meter.RegisterCallback([]instrument.Asynchronous{
+	instruments := []instrument.Asynchronous{
 		storageUsed,
 		storageObjects,
 		storageTotal,
-	}, func(ctx context.Context) {
+	}
+	_, err = meter.RegisterCallback(func(ctx context.Context, obs metric.Observer) error {
 		stat, err := corerepo.RepoStat(ctx, node)
 		if err != nil {
 			log.Errorf("corerepo.RepoStat failed", "error", err)
-			return
+			return err
 		}
 
-		storageUsed.Observe(ctx, int64(stat.RepoSize))
-		storageObjects.Observe(ctx, int64(stat.NumObjects))
-		storageTotal.Observe(ctx, int64(stat.StorageMax))
-	})
+		obs.ObserveInt64(storageUsed, int64(stat.RepoSize))
+		obs.ObserveInt64(storageObjects, int64(stat.NumObjects))
+		obs.ObserveInt64(storageTotal, int64(stat.StorageMax))
+		return nil
+	}, instruments...)
 	if err != nil {
 		return err
 	}
@@ -220,18 +222,18 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 	var (
 		err error
 
-		lowWater    asyncint64.UpDownCounter
-		highWater   asyncint64.UpDownCounter
-		connections asyncint64.UpDownCounter
-		rateIn      asyncint64.UpDownCounter
-		rateOut     asyncint64.UpDownCounter
-		totalIn     asyncint64.Counter
-		totalOut    asyncint64.Counter
+		lowWater    instrument.Int64ObservableUpDownCounter
+		highWater   instrument.Int64ObservableUpDownCounter
+		connections instrument.Int64ObservableUpDownCounter
+		rateIn      instrument.Int64ObservableUpDownCounter
+		rateOut     instrument.Int64ObservableUpDownCounter
+		totalIn     instrument.Int64ObservableCounter
+		totalOut    instrument.Int64ObservableCounter
 	)
 
 	m := t.Meter("libp2p.io/network")
 
-	if lowWater, err = m.AsyncInt64().UpDownCounter(
+	if lowWater, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.low_water",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Network Low Water number of peers"),
@@ -239,7 +241,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if highWater, err = m.AsyncInt64().UpDownCounter(
+	if highWater, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.high_water",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Network High Water number of peers"),
@@ -247,7 +249,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if connections, err = m.AsyncInt64().UpDownCounter(
+	if connections, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.connections",
 		instrument.WithUnit(unit.Dimensionless),
 		instrument.WithDescription("Number of connections"),
@@ -255,7 +257,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if rateIn, err = m.AsyncInt64().UpDownCounter(
+	if rateIn, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.rate_in",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network in rate in bytes per second"),
@@ -263,7 +265,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if rateOut, err = m.AsyncInt64().UpDownCounter(
+	if rateOut, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.rate_out",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network out rate in bytes per second"),
@@ -271,7 +273,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if totalIn, err = m.AsyncInt64().UpDownCounter(
+	if totalIn, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.total_in",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network total bytes in"),
@@ -279,7 +281,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	if totalOut, err = m.AsyncInt64().UpDownCounter(
+	if totalOut, err = m.Int64ObservableUpDownCounter(
 		"libp2p.network.total_out",
 		instrument.WithUnit(unit.Bytes),
 		instrument.WithDescription("Network total bytes out"),
@@ -287,7 +289,7 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		return err
 	}
 
-	m.RegisterCallback([]instrument.Asynchronous{
+	instruments := []instrument.Asynchronous{
 		lowWater,
 		highWater,
 		connections,
@@ -295,28 +297,34 @@ func registerNetworkMetrics(t telemetry.MeterProvider, node *core.IpfsNode) erro
 		rateOut,
 		totalIn,
 		totalOut,
-	}, func(ctx context.Context) {
+	}
+	_, err = m.RegisterCallback(func(ctx context.Context, obs metric.Observer) error {
 		reporter := node.Reporter
 		cmgr := node.PeerHost.ConnManager().(*connmgr.BasicConnMgr)
 		info := cmgr.GetInfo()
 
-		lowWater.Observe(ctx, int64(info.LowWater))
-		highWater.Observe(ctx, int64(info.HighWater))
-		connections.Observe(ctx, int64(info.ConnCount))
+		obs.ObserveInt64(lowWater, int64(info.LowWater))
+		obs.ObserveInt64(highWater, int64(info.HighWater))
+		obs.ObserveInt64(connections, int64(info.ConnCount))
 
 		bt := reporter.GetBandwidthTotals()
-		rateIn.Observe(ctx, int64(bt.RateIn))
-		rateOut.Observe(ctx, int64(bt.RateOut))
-		totalIn.Observe(ctx, bt.TotalIn)
-		totalOut.Observe(ctx, bt.TotalOut)
+		obs.ObserveInt64(rateIn, int64(bt.RateIn))
+		obs.ObserveInt64(rateOut, int64(bt.RateOut))
+		obs.ObserveInt64(totalIn, bt.TotalIn)
+		obs.ObserveInt64(totalOut, bt.TotalOut)
 
 		for p, s := range node.Reporter.GetBandwidthByProtocol() {
-			rateIn.Observe(ctx, int64(s.RateIn), attribute.String("protocol", string(p)))
-			rateOut.Observe(ctx, int64(s.RateOut), attribute.String("protocol", string(p)))
-			totalIn.Observe(ctx, s.TotalIn, attribute.String("protocol", string(p)))
-			totalOut.Observe(ctx, s.TotalOut, attribute.String("protocol", string(p)))
+			obs.ObserveInt64(rateIn, int64(s.RateIn), attribute.String("protocol", string(p)))
+			obs.ObserveInt64(rateOut, int64(s.RateOut), attribute.String("protocol", string(p)))
+			obs.ObserveInt64(totalIn, s.TotalIn, attribute.String("protocol", string(p)))
+			obs.ObserveInt64(totalOut, s.TotalOut, attribute.String("protocol", string(p)))
 		}
-	})
+
+		return nil
+	}, instruments...)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
