@@ -2,6 +2,8 @@ module github.com/ipfs/kubo
 
 go 1.24
 
+replace github.com/diogo464/telemetry => ../telemetry
+
 require (
 	bazil.org/fuse v0.0.0-20200117225306-7b5117fecadc
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
